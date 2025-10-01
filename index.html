@@ -1,1 +1,696 @@
 
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Liyy's 相册</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', 'PingFang SC', 'Microsoft YaHei', sans-serif;
+        }
+        
+        :root {
+            --primary: #6c63ff;
+            --primary-light: #8a85ff;
+            --secondary: #ff6584;
+            --dark: #2d3748;
+            --light: #f8f9fa;
+            --gray: #a0aec0;
+            --shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+            --radius: 12px;
+        }
+        
+        body {
+            background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+            color: var(--dark);
+            line-height: 1.6;
+            min-height: 100vh;
+            padding: 20px;
+        }
+        
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+        
+        header {
+            text-align: center;
+            margin-bottom: 40px;
+            padding: 30px 20px;
+            background: white;
+            border-radius: var(--radius);
+            box-shadow: var(--shadow);
+            position: relative;
+            overflow: hidden;
+        }
+        
+        header::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 5px;
+            background: linear-gradient(90deg, var(--primary), var(--secondary));
+        }
+        
+        h1 {
+            color: var(--dark);
+            margin-bottom: 10px;
+            font-size: 2.5rem;
+            font-weight: 700;
+        }
+        
+        .subtitle {
+            color: var(--gray);
+            font-size: 1.1rem;
+            max-width: 600px;
+            margin: 0 auto;
+        }
+        
+        .upload-section {
+            background: white;
+            padding: 25px;
+            border-radius: var(--radius);
+            box-shadow: var(--shadow);
+            margin-bottom: 40px;
+            text-align: center;
+        }
+        
+        .upload-area {
+            border: 2px dashed var(--primary-light);
+            border-radius: var(--radius);
+            padding: 40px 20px;
+            margin-bottom: 20px;
+            transition: all 0.3s ease;
+            cursor: pointer;
+            background: rgba(108, 99, 255, 0.03);
+        }
+        
+        .upload-area:hover {
+            border-color: var(--primary);
+            background: rgba(108, 99, 255, 0.08);
+        }
+        
+        .upload-area i {
+            font-size: 48px;
+            color: var(--primary);
+            margin-bottom: 15px;
+        }
+        
+        .upload-text {
+            font-size: 1.2rem;
+            margin-bottom: 10px;
+            color: var(--dark);
+        }
+        
+        .upload-hint {
+            color: var(--gray);
+            font-size: 0.9rem;
+        }
+        
+        .btn {
+            background: var(--primary);
+            color: white;
+            border: none;
+            padding: 12px 28px;
+            border-radius: 50px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            box-shadow: 0 4px 6px rgba(108, 99, 255, 0.3);
+        }
+        
+        .btn:hover {
+            background: var(--primary-light);
+            transform: translateY(-2px);
+            box-shadow: 0 6px 8px rgba(108, 99, 255, 0.4);
+        }
+        
+        .btn i {
+            margin-right: 8px;
+        }
+        
+        .btn-secondary {
+            background: white;
+            color: var(--dark);
+            border: 1px solid var(--gray);
+            box-shadow: none;
+        }
+        
+        .btn-secondary:hover {
+            background: #f1f1f1;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        }
+        
+        .gallery {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+            gap: 25px;
+        }
+        
+        .media-item {
+            position: relative;
+            border-radius: var(--radius);
+            overflow: hidden;
+            box-shadow: var(--shadow);
+            transition: all 0.3s ease;
+            background: white;
+        }
+        
+        .media-item:hover {
+            transform: translateY(-8px);
+            box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.15), 0 10px 10px -5px rgba(0, 0, 0, 0.1);
+        }
+        
+        .media-item img, .media-item video {
+            width: 100%;
+            height: 220px;
+            object-fit: cover;
+            display: block;
+            transition: transform 0.5s ease;
+        }
+        
+        .media-item:hover img, .media-item:hover video {
+            transform: scale(1.05);
+        }
+        
+        .media-overlay {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(to bottom, transparent 60%, rgba(0, 0, 0, 0.7));
+            opacity: 0;
+            transition: opacity 0.3s ease;
+            display: flex;
+            align-items: flex-end;
+            justify-content: flex-end;
+            padding: 15px;
+        }
+        
+        .media-item:hover .media-overlay {
+            opacity: 1;
+        }
+        
+        .delete-btn {
+            background: var(--secondary);
+            color: white;
+            border: none;
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            font-size: 18px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 6px rgba(255, 101, 132, 0.4);
+        }
+        
+        .delete-btn:hover {
+            background: #ff4d6d;
+            transform: scale(1.1);
+        }
+        
+        .media-info {
+            padding: 15px;
+        }
+        
+        .media-name {
+            font-weight: 600;
+            margin-bottom: 5px;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+        
+        .media-type {
+            color: var(--gray);
+            font-size: 0.85rem;
+            display: flex;
+            align-items: center;
+        }
+        
+        .media-type i {
+            margin-right: 5px;
+        }
+        
+        .empty-state {
+            text-align: center;
+            padding: 60px 20px;
+            color: var(--gray);
+            background: white;
+            border-radius: var(--radius);
+            box-shadow: var(--shadow);
+            grid-column: 1 / -1;
+        }
+        
+        .empty-state i {
+            font-size: 80px;
+            margin-bottom: 20px;
+            color: #e2e8f0;
+        }
+        
+        .empty-state h3 {
+            font-size: 1.5rem;
+            margin-bottom: 10px;
+            color: var(--dark);
+        }
+        
+        .file-input {
+            display: none;
+        }
+        
+        .upload-actions {
+            display: flex;
+            justify-content: center;
+            gap: 15px;
+            margin-top: 20px;
+        }
+        
+        @media (max-width: 768px) {
+            .gallery {
+                grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+                gap: 20px;
+            }
+            
+            .media-item img, .media-item video {
+                height: 180px;
+            }
+            
+            h1 {
+                font-size: 2rem;
+            }
+            
+            .upload-actions {
+                flex-direction: column;
+                align-items: center;
+            }
+            
+            .btn {
+                width: 100%;
+                max-width: 300px;
+            }
+        }
+        
+        @media (max-width: 480px) {
+            .gallery {
+                grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+                gap: 15px;
+            }
+            
+            .media-item img, .media-item video {
+                height: 150px;
+            }
+            
+            .upload-section {
+                padding: 20px 15px;
+            }
+            
+            .upload-area {
+                padding: 30px 15px;
+            }
+        }
+        
+        .toast {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            background: var(--dark);
+            color: white;
+            padding: 15px 25px;
+            border-radius: var(--radius);
+            box-shadow: var(--shadow);
+            display: flex;
+            align-items: center;
+            transform: translateY(100px);
+            opacity: 0;
+            transition: all 0.3s ease;
+            z-index: 1000;
+        }
+        
+        .toast.show {
+            transform: translateY(0);
+            opacity: 1;
+        }
+        
+        .toast i {
+            margin-right: 10px;
+            font-size: 20px;
+        }
+        
+        .toast.success {
+            background: #48bb78;
+        }
+        
+        .toast.error {
+            background: var(--secondary);
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>Liyy's 相册</h1>
+            <p class="subtitle">本网站保留包括但不限于Liyy本人拍摄的图片，旨在便捷查询和阅览</p>
+        </header>
+        
+        <section class="upload-section">
+            <div class="upload-area" id="uploadArea">
+                <i class="fas fa-cloud-upload-alt"></i>
+                <p class="upload-text">拖放文件到此处或点击上传</p>
+                <p class="upload-hint">支持 JPG, PNG, GIF, MP4, WebM 格式文件</p>
+                <input type="file" id="fileInput" class="file-input" accept="image/*,video/*" multiple>
+            </div>
+            
+            <div class="upload-actions">
+                <button class="btn" id="uploadBtn">
+                    <i class="fas fa-plus"></i> 选择文件
+                </button>
+                <button class="btn btn-secondary" id="clearBtn">
+                    <i class="fas fa-trash"></i> 清空相册
+                </button>
+            </div>
+        </section>
+        
+        <section class="gallery" id="gallery">
+            <!-- 相册内容将在这里动态生成 -->
+            <div class="empty-state">
+                <i class="fas fa-images"></i>
+                <h3>相册为空</h3>
+                <p>此处上传一些照片或视频</p>
+            </div>
+        </section>
+    </div>
+
+    <div class="toast" id="toast">
+        <i class="fas fa-check-circle"></i>
+        <span id="toastMessage">操作成功</span>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const fileInput = document.getElementById('fileInput');
+            const uploadBtn = document.getElementById('uploadBtn');
+            const clearBtn = document.getElementById('clearBtn');
+            const uploadArea = document.getElementById('uploadArea');
+            const gallery = document.getElementById('gallery');
+            const toast = document.getElementById('toast');
+            const toastMessage = document.getElementById('toastMessage');
+            
+            // 从本地存储加载相册内容
+            loadGalleryFromStorage();
+            
+            // 上传按钮点击事件
+            uploadBtn.addEventListener('click', function() {
+                fileInput.click();
+            });
+            
+            // 上传区域点击事件
+            uploadArea.addEventListener('click', function() {
+                fileInput.click();
+            });
+            
+            // 清空按钮点击事件
+            clearBtn.addEventListener('click', function() {
+                if (gallery.children.length > 0 && !gallery.querySelector('.empty-state')) {
+                    if (confirm('确定要清空整个相册吗？此操作不可撤销。')) {
+                        gallery.innerHTML = '';
+                        showEmptyState();
+                        saveGalleryToStorage();
+                        showToast('相册已清空', 'success');
+                    }
+                } else {
+                    showToast('相册已经是空的', 'error');
+                }
+            });
+            
+            // 文件选择变化事件
+            fileInput.addEventListener('change', function() {
+                if (this.files.length > 0) {
+                    handleFiles(this.files);
+                    // 清空文件输入，允许再次选择相同文件
+                    this.value = '';
+                }
+            });
+            
+            // 拖放功能
+            uploadArea.addEventListener('dragover', function(e) {
+                e.preventDefault();
+                uploadArea.style.borderColor = 'var(--primary)';
+                uploadArea.style.background = 'rgba(108, 99, 255, 0.1)';
+            });
+            
+            uploadArea.addEventListener('dragleave', function() {
+                uploadArea.style.borderColor = 'var(--primary-light)';
+                uploadArea.style.background = 'rgba(108, 99, 255, 0.03)';
+            });
+            
+            uploadArea.addEventListener('drop', function(e) {
+                e.preventDefault();
+                uploadArea.style.borderColor = 'var(--primary-light)';
+                uploadArea.style.background = 'rgba(108, 99, 255, 0.03)';
+                
+                if (e.dataTransfer.files.length > 0) {
+                    handleFiles(e.dataTransfer.files);
+                }
+            });
+            
+            // 处理选中的文件
+            function handleFiles(files) {
+                // 移除空状态提示
+                const emptyState = gallery.querySelector('.empty-state');
+                if (emptyState) {
+                    emptyState.remove();
+                }
+                
+                let validFiles = 0;
+                for (let i = 0; i < files.length; i++) {
+                    const file = files[i];
+                    
+                    // 验证文件类型
+                    if (!file.type.startsWith('image/') && !file.type.startsWith('video/')) {
+                        continue;
+                    }
+                    
+                    validFiles++;
+                    const reader = new FileReader();
+                    
+                    reader.onload = function(e) {
+                        createMediaItem(file, e.target.result);
+                    };
+                    
+                    if (file.type.startsWith('image/')) {
+                        reader.readAsDataURL(file);
+                    } else if (file.type.startsWith('video/')) {
+                        reader.readAsDataURL(file);
+                    }
+                }
+                
+                // 保存到本地存储
+                saveGalleryToStorage();
+                
+                if (validFiles > 0) {
+                    showToast(`成功上传 ${validFiles} 个文件`, 'success');
+                } else {
+                    showToast('没有有效的图片或视频文件', 'error');
+                }
+            }
+            
+            // 创建媒体项目
+            function createMediaItem(file, dataUrl) {
+                const mediaItem = document.createElement('div');
+                mediaItem.className = 'media-item';
+                
+                let mediaElement;
+                if (file.type.startsWith('image/')) {
+                    mediaElement = document.createElement('img');
+                    mediaElement.src = dataUrl;
+                    mediaElement.alt = file.name;
+                } else if (file.type.startsWith('video/')) {
+                    mediaElement = document.createElement('video');
+                    mediaElement.src = dataUrl;
+                    mediaElement.controls = true;
+                }
+                
+                const mediaOverlay = document.createElement('div');
+                mediaOverlay.className = 'media-overlay';
+                
+                const deleteBtn = document.createElement('button');
+                deleteBtn.className = 'delete-btn';
+                deleteBtn.innerHTML = '<i class="fas fa-trash"></i>';
+                deleteBtn.addEventListener('click', function(e) {
+                    e.stopPropagation();
+                    mediaItem.remove();
+                    // 如果相册为空，显示空状态
+                    if (gallery.children.length === 0) {
+                        showEmptyState();
+                    }
+                    saveGalleryToStorage();
+                    showToast('文件已删除', 'success');
+                });
+                
+                const mediaInfo = document.createElement('div');
+                mediaInfo.className = 'media-info';
+                
+                const mediaName = document.createElement('div');
+                mediaName.className = 'media-name';
+                mediaName.textContent = file.name;
+                
+                const mediaType = document.createElement('div');
+                mediaType.className = 'media-type';
+                
+                if (file.type.startsWith('image/')) {
+                    mediaType.innerHTML = '<i class="fas fa-image"></i> 图片';
+                } else if (file.type.startsWith('video/')) {
+                    mediaType.innerHTML = '<i class="fas fa-video"></i> 视频';
+                }
+                
+                mediaOverlay.appendChild(deleteBtn);
+                mediaInfo.appendChild(mediaName);
+                mediaInfo.appendChild(mediaType);
+                
+                mediaItem.appendChild(mediaElement);
+                mediaItem.appendChild(mediaOverlay);
+                mediaItem.appendChild(mediaInfo);
+                
+                gallery.appendChild(mediaItem);
+            }
+            
+            // 显示空状态
+            function showEmptyState() {
+                const emptyState = document.createElement('div');
+                emptyState.className = 'empty-state';
+                emptyState.innerHTML = `
+                    <i class="fas fa-images"></i>
+                    <h3>相册为空</h3>
+                    <p>请上传一些照片或视频来开始使用</p>
+                `;
+                gallery.appendChild(emptyState);
+            }
+            
+            // 保存相册到本地存储
+            function saveGalleryToStorage() {
+                const mediaItems = gallery.querySelectorAll('.media-item');
+                const galleryData = [];
+                
+                mediaItems.forEach(item => {
+                    const mediaElement = item.querySelector('img, video');
+                    const mediaName = item.querySelector('.media-name');
+                    
+                    if (mediaElement && mediaName) {
+                        galleryData.push({
+                            src: mediaElement.src,
+                            type: mediaElement.tagName.toLowerCase(),
+                            name: mediaName.textContent
+                        });
+                    }
+                });
+                
+                localStorage.setItem('photoGallery', JSON.stringify(galleryData));
+            }
+            
+            // 从本地存储加载相册
+            function loadGalleryFromStorage() {
+                const savedGallery = localStorage.getItem('photoGallery');
+                
+                if (savedGallery) {
+                    const galleryData = JSON.parse(savedGallery);
+                    
+                    if (galleryData.length > 0) {
+                        // 移除空状态提示
+                        const emptyState = gallery.querySelector('.empty-state');
+                        if (emptyState) {
+                            emptyState.remove();
+                        }
+                        
+                        galleryData.forEach(item => {
+                            const mediaItem = document.createElement('div');
+                            mediaItem.className = 'media-item';
+                            
+                            let mediaElement;
+                            if (item.type === 'img') {
+                                mediaElement = document.createElement('img');
+                                mediaElement.src = item.src;
+                                mediaElement.alt = item.name;
+                            } else if (item.type === 'video') {
+                                mediaElement = document.createElement('video');
+                                mediaElement.src = item.src;
+                                mediaElement.controls = true;
+                            }
+                            
+                            const mediaOverlay = document.createElement('div');
+                            mediaOverlay.className = 'media-overlay';
+                            
+                            const deleteBtn = document.createElement('button');
+                            deleteBtn.className = 'delete-btn';
+                            deleteBtn.innerHTML = '<i class="fas fa-trash"></i>';
+                            deleteBtn.addEventListener('click', function(e) {
+                                e.stopPropagation();
+                                mediaItem.remove();
+                                // 如果相册为空，显示空状态
+                                if (gallery.children.length === 0) {
+                                    showEmptyState();
+                                }
+                                saveGalleryToStorage();
+                                showToast('文件已删除', 'success');
+                            });
+                            
+                            const mediaInfo = document.createElement('div');
+                            mediaInfo.className = 'media-info';
+                            
+                            const mediaName = document.createElement('div');
+                            mediaName.className = 'media-name';
+                            mediaName.textContent = item.name;
+                            
+                            const mediaType = document.createElement('div');
+                            mediaType.className = 'media-type';
+                            
+                            if (item.type === 'img') {
+                                mediaType.innerHTML = '<i class="fas fa-image"></i> 图片';
+                            } else if (item.type === 'video') {
+                                mediaType.innerHTML = '<i class="fas fa-video"></i> 视频';
+                            }
+                            
+                            mediaOverlay.appendChild(deleteBtn);
+                            mediaInfo.appendChild(mediaName);
+                            mediaInfo.appendChild(mediaType);
+                            
+                            mediaItem.appendChild(mediaElement);
+                            mediaItem.appendChild(mediaOverlay);
+                            mediaItem.appendChild(mediaInfo);
+                            
+                            gallery.appendChild(mediaItem);
+                        });
+                    }
+                }
+            }
+            
+            // 显示提示消息
+            function showToast(message, type = 'success') {
+                toastMessage.textContent = message;
+                toast.className = 'toast';
+                toast.classList.add(type);
+                toast.classList.add('show');
+                
+                setTimeout(function() {
+                    toast.classList.remove('show');
+                }, 3000);
+            }
+        });
+    </script>
+</body>
+</html>
